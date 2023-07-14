@@ -148,17 +148,17 @@ class UserController extends Controller
 
     public function sendEmail(Request $request)
     {
-        $emailAddresses = $request->input('email_addresses');
+        $requestData = json_decode($request->getContent(), true);
 
-        Mail::to($emailAddresses)->send(new SendEmail($emailAddresses));
-        // $emailAddresses = $request->email_addresses;
-        // $data = 'Welcome from FB';
+        // Extract the email, subject, and body from the request data
+        $recipients = $requestData['mailTo'];
+        $subject = $requestData['subject'];
+        $body = $requestData['body'];
 
-        // Mail::send('mail', ['data' => $data], function($message) use ($data) {
-        //     $message->to('khaingyee14@gmail.com', 'Welcome')->subject('FB');
-        //   });
-    }
-
-
+        // Send the email to multiple recipients
+        Mail::send('mail', ['body' => $body, 'subject' => $subject], function ($message) use ($body, $recipients, $subject) {
+            $message->to($recipients)->subject($subject);
+        });
+    }   
 }
 

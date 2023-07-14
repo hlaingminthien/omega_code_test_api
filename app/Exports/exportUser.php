@@ -10,11 +10,11 @@ class exportUser implements FromCollection, WithHeadings
 {
     public function collection()
     {
-        return User::all(['id', 'role', 'department', 'email', 'created_at', 'updated_at']);
+        return User::all(['id', 'name', 'role', 'department', 'email', 'created_at', 'updated_at']);
     }
 
     public function headings(): array
     {
-        return ['ID', 'Role', 'Department', 'Email', 'Created At', 'Updated At'];
+        return ['ID', 'Name', 'Role', 'Department', 'Email', 'Created At', 'Updated At'];
     }
 }
