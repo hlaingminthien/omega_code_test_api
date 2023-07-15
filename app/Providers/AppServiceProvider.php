@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\FacebookService;
 use Illuminate\Support\ServiceProvider;
 use Facebook\Facebook;
 
@@ -14,12 +15,12 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Facebook::class, function ($app) {
             return new Facebook([
-                'app_id' => config('app.facebook_app_id'),
-                'app_secret' => config('app.facebook_app_secret'),
-                'default_graph_version' => 'v14.0',
+                'app_id' => config('services.facebook.app_id'),
+                'app_secret' => config('services.facebook.app_secret'),
+                'default_graph_version' => 'v17.0',
             ]);
         });
-    
+
         $this->app->singleton(FacebookService::class, function ($app) {
             return new FacebookService($app->make(Facebook::class));
         });

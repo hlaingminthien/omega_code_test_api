@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use Facebook\Facebook;
+use Facebook\Exceptions\FacebookResponseException;
+use Facebook\Exceptions\FacebookSDKException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class FacebookService
 {
@@ -12,56 +16,52 @@ class FacebookService
     {
         $this->facebook = $facebook;
     }
+    
+    public function getFeed()
+    {
+        try {
+            $accessToken = 'EAAVGKp0g3Y0BAN9PAHsRvT3z113VA4ebHr1XuUuyadkuxhYUOkoPKcac0klKkGqr3R6QWFNUZCWqOtvxVFhPP6qgWYiBVyOlbcZAlfxoVdLjZCVuozUifqBn5eZAuuGgtqrtMcpCcUXo7CJxaXBlhYjT6WgYN9zrX5wxGZAY6J1ZAeaOazpxSuGYdpTRAtLY7ph9BthmcMBYM4wpoKsQo4QLpGBMGq5HEZD';
+    
+            $client = new Client();
+            $response = $client->get('https://graph.facebook.com/v14.0/me/posts', [
+                'query' => [
+                    'access_token' => $accessToken,
+                ],
+            ]);
+    
+            $data = json_decode($response->getBody(), true);
+    
+            return $data;
+        } catch (GuzzleException $e) {
+            // Handle HTTP client errors
+            return ['error' => $e->getMessage()];
+        }
+    }
 
-    public function getPosts()
+    public function uploadFeed($message)
     {
         try {
-            // Make a Graph API request to retrieve the user's posts
-            $response = $this->facebook->get('/me/posts', $this->getAccessToken());
+            $accessToken = 'EAAVGKp0g3Y0BAN9PAHsRvT3z113VA4ebHr1XuUuyadkuxhYUOkoPKcac0klKkGqr3R6QWFNUZCWqOtvxVFhPP6qgWYiBVyOlbcZAlfxoVdLjZCVuozUifqBn5eZAuuGgtqrtMcpCcUXo7CJxaXBlhYjT6WgYN9zrX5wxGZAY6J1ZAeaOazpxSuGYdpTRAtLY7ph9BthmcMBYM4wpoKsQo4QLpGBMGq5HEZD';
+            $client = new Client();
+            $response = $client->post(
+                'https://graph.facebook.com/v14.0/me/posts',
+                [
+                    'query' => [
+                        'access_token' => $accessToken,
+                    ],
+                    'form_params' => [
+                        'message' => $message,
+                    ],
+                ]
+            );
     
-            // Get the decoded response data
-            $data = $response->getDecodedBody();
+            $responseData = json_decode($response->getBody(), true);
     
-            // Extract and return the posts from the response data
-            return $data['data'];
-        } catch (FacebookResponseException $e) {
-            // Handle Facebook API errors
-            return [];
-        } catch (FacebookSDKException $e) {
-            // Handle SDK errors
-            return [];
+            return $responseData['id'];
+        } catch (\Exception $e) {
+            // Handle errors
+            return ['error' => $e->getMessage()];
         }
-    }
-    
-    public function createPost($message)
-    {
-        try {
-            // Make a Graph API request to create a new post
-            $response = $this->facebook->post('/me/feed', [
-                'message' => $message
-            ], $this->getAccessToken());
-    
-            // Get the decoded response data
-            $data = $response->getDecodedBody();
-    
-            // Return the ID of the created post
-            return $data['id'];
-        } catch (FacebookResponseException $e) {
-            // Handle Facebook API errors
-            return null;
-        } catch (FacebookSDKException $e) {
-            // Handle SDK errors
-            return null;
-        }
-    }
-    
-    private function getAccessToken()
-    {
-        // Retrieve the access token for the authenticated user
-        // You can implement your own logic to get the access token from the user
-        // For example, you can use Laravel's authentication system or a stored access token
-    
-        // Return the access token
-        return 'YOUR_ACCESS_TOKEN';
-    }
+    }    
 }
+
